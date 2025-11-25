@@ -6,6 +6,7 @@ class Character:
     def __init__(self, x , y):
         self.x = x
         self.y = y
+
         # Inventario
         self.inventory = {"wood": 0, "stone": 0}
         image_path = os.path.join("assets", "images", "character", "character.png")
@@ -13,10 +14,16 @@ class Character:
         self.image = pygame.transform.scale(self.image, (constants.PLAYER, constants.PLAYER))
         self.size = self.image.get_width()
 
+        # Imágenes de los items
         self.item_images = {
             "wood": self.load_item_image("wood.png"),
             "stone": self.load_item_image("smallStone.png")
         }
+
+        # Barras de estado
+        self.energy = constants.MAX_ENERGY
+        self.food = constants.MAX_FOOD
+        self.thirst = constants.MAX_THIRST
     
     def load_item_image(self, filename):
         path = os.path.join("assets", "images", "objects", filename)
@@ -26,6 +33,7 @@ class Character:
 
     def draw(self, screen):
         screen.blit(self.image, (self.x, self.y))
+        self.draw_status_bars(screen)
 
     def move(self, dx, dy, world):
         new_x = self.x + dx
@@ -37,13 +45,25 @@ class Character:
 
         self.x = new_x
         self.y = new_y
+        #Cuando se mueve, pierde energia
+        self.update_energy(-0.1)
 
     def check_collision(self, x, y, obj):
-        return x < obj.x + obj.size*.75 and x + self.size*.75 > obj.x and y < obj.y + obj.size*.75 and y + self.size*.75 > obj.y
+        ratio = 0.6
+        cs, os = self.size * ratio, obj.size * ratio
+        cx, cy = x + (self.size - cs) / 2, y + (self.size - cs) / 2
+        ox, oy = obj.x + (obj.size - os) / 2, obj.y + (obj.size - os) / 2
+        return cx < ox + os and cx + cs > ox and cy < oy + os and cy + cs > oy
 
-    def is_near(self, obj):
-        return (abs(self.x - obj.x) <= self.size + obj.size and
-                abs(self.y - obj.y) <= self.size + obj.size)
+    def is_near(self, obj, max_distance=10):
+        ratio = 0.6
+        cs, os = self.size * ratio, obj.size * ratio
+        cx = self.x + (self.size - cs) / 2 + cs / 2
+        cy = self.y + (self.size - cs) / 2 + cs / 2
+        ox = obj.x + (obj.size - os) / 2 + os / 2
+        oy = obj.y + (obj.size - os) / 2 + os / 2
+        max_allowed = cs / 2 + os / 2 + max_distance
+        return abs(cx - ox) <= max_allowed and abs(cy - oy) <= max_allowed
 
     def interact(self, world):
         for tree in world.trees:
@@ -81,4 +101,43 @@ class Character:
 
         close_text = item_font.render("Press 'I' to close", True, constants.WHITE)
 
-        screen.blit(close_text, (constants.WIDTH // 2 - close_text.get_width() // 2, constants.HEIGHT - 40))         
+        screen.blit(close_text, (constants.WIDTH // 2 - close_text.get_width() // 2, constants.HEIGHT - 40))   
+
+    def update_energy(self, amount):
+        self.energy = max(0, min(self.energy + amount, constants.MAX_ENERGY))
+
+    def update_food(self, amount):
+        self.food = max(0, min(self.food + amount, constants.MAX_FOOD))
+
+    def update_thirst(self, amount):
+        self.thirst = max(0, min(self.thirst + amount, constants.MAX_THIRST))
+
+    def draw_status_bars(self, screen):
+        bar_width = 200
+        bar_height = 10
+        x_offset = 10
+        y_offset = 10
+
+        # Energy bar
+        pygame.draw.rect(screen, constants.BAR_BACKGROUND, (x_offset, y_offset, bar_width, bar_height))
+
+        pygame.draw.rect(screen, constants.ENERGY_COLOR, (x_offset, y_offset, bar_width * (self.energy / constants.MAX_ENERGY), bar_height))
+        
+        # Food bar
+        y_offset += 15
+        pygame.draw.rect(screen, constants.BAR_BACKGROUND, (x_offset, y_offset, bar_width, bar_height))
+        pygame.draw.rect(screen, constants.FOOD_COLOR, (x_offset, y_offset, bar_width * (self.food / constants.MAX_FOOD), bar_height))
+
+        # Thirst bar
+        y_offset += 15
+        pygame.draw.rect(screen, constants.BAR_BACKGROUND, (x_offset, y_offset, bar_width, bar_height))
+        pygame.draw.rect(screen, constants.THIRST_COLOR, (x_offset, y_offset, bar_width * (self.thirst / constants.MAX_THIRST), bar_height))
+
+    def update_status(self):
+        self.update_food(-0.5)
+        self.update_thirst(-0.5)
+
+        if self.food < constants.MAX_FOOD * 0.2 or self.thirst < constants.MAX_THIRST * 0.2:
+            self.update_energy(-0.1)
+        else:
+            self.update_energy(0.05)
