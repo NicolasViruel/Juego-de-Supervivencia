@@ -1,8 +1,22 @@
 WIDTH, HEIGHT = 800, 600
-PLAYER = 40
+PLAYER = 60
 GRASS = 64
 TREE = 64
 SMALL_STONE = 22
+
+#ANIMACIONES
+CUADROS_BASICOS = 6
+IDLE_DOWN = 0
+IDLE_RIGHT = 1
+IDLE_UP = 2
+WALK_DOWN = 3
+WALK_RIGHT = 4
+WALK_UP = 5
+FRAME_SIZE = 32
+ANIMATION_DELAY = 100
+
+# Velocidad del personaje
+PLAYER_SPEED = 3  # Píxeles por frame (reducido de 5)
 
 # Colores
 
