@@ -40,13 +40,13 @@ def main():
 
         keys = pygame.key.get_pressed()
         if keys[pygame.K_LEFT]:
-            character.move(-5, 0, world)
+            character.move(-constants.PLAYER_SPEED, 0, world)
         if keys[pygame.K_RIGHT]:
-            character.move(5, 0, world)
+            character.move(constants.PLAYER_SPEED, 0, world)
         if keys[pygame.K_UP]:
-            character.move(0, -5, world)
+            character.move(0, -constants.PLAYER_SPEED, world)
         if keys[pygame.K_DOWN]:
-            character.move(0, 5, world)
+            character.move(0, constants.PLAYER_SPEED, world)
 
         # Actualizar el tiempo del dia
         world.update_time(dt)
