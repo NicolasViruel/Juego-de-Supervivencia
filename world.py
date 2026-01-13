@@ -5,8 +5,64 @@ import random
 import os
 from pygame import Surface
 
+class WorldChunk: 
+    # Representa un segmento del mundo con sus elementos
+    def __init__(self, x, y, width, height):
+        self.x = x
+        self.y = y
+        self.width = width
+        self.height = height
+
+        #Creamos una semilla basada en las coordenadas del chunk
+        chunk_seed = hash(f"{x}_{y}")
+        old_state = random.getstate()
+        random.seed(chunk_seed)
+
+        # Generamos elementos dle chunk (arboles)
+        self.trees = [
+            Tree(
+                self.x + random.randint(0, width-constants.TREE),
+                self.y + random.randint(0, height-constants.TREE)
+            ) for _ in range(5)
+        ]
+
+        # Generamos elementos del chunk (piedras pequeñas)
+        self.small_stones = [
+            SmallStone(
+                self.x + random.randint(0, width-constants.SMALL_STONE),
+                self.y + random.randint(0, height-constants.SMALL_STONE)
+            ) for _ in range(10)
+        ]
+
+        # Restauramos el estado anterior del generador de numeros aleatorios
+        random.setstate(old_state)
+
+        def draw(self, screen, grass_image, camera_x, camera_y):
+            # Dibujar el pasto en este chunk con oofset de camara
+            chunk_screen_x = self.x - camera_x
+            chunk_screen_y = self.y - camera_y
+
+            # Calcular el rango de tiles de pasto visibles con un tilde extra para evitar lineas
+            start_x = max(0, (camera_x - self.x - constants.GRASS // constants.GRASS)
+            end_x = min(self.width // constants.GRASS + 1,
+            (camera_X + constants.WIDTH - self.x + constants.GRASS // constants.GRASS + 1))
+            start_y = max(0, (camera_y - self.y - constants.GRASS // constants.GRASS)
+            end_y = min(self.height // constants.GRASS + 1,
+            (camera_y + constants.HEIGHT - self.y + constants.GRASS // constants.GRASS + 1))
+
+            for y in range(int(start_y), int(end_y)):
+                for x in range(int(start_x), int(end_x)):
+                    screen_x = self.x + x * constants.GRASS
+                    scree_y = self.y + y * constants.GRASS
+                    screen.blit(grass_image, (screen_x, screen_y))
+
 class World: 
     def __init__(self, width, height):
+
+        self.chunk_size = constants.WIDTH
+        self.active_chunks = {}
+
+
         self.width = width
         self.height = height
         # Generar árboles y piedras aleatoriamente
@@ -25,6 +81,43 @@ class World:
         self.day_overlay = Surface((width, height))
         self.day_overlay.fill(constants.DAY_COLOR)
         self.day_overlay.set_alpha(0)
+
+    def get_chunk_key(self, x, y):
+        # Obtiene la llave del chunk basada en las coordenadas globales
+        chunk_x = x // self.chunk_size
+        chunk_y = y // self.chunk_size
+        return f"{chunk_x}_{chunk_y}"
+
+    def generate_chunk(self, chunk_x, chunk_y):
+        # Generamos un nuevo chunk en las coordenadas especificas
+        key = (chunk_x, chunk_y)
+        if key not in self.active_chunks:
+            x = chunk_x * self.chunk_size
+            y = chunk_y * self.chunk_size
+            self.active_chunks[key] = WorldChunk(x, y, self.chunk_size, self.chunk_size)
+
+    def udpdate_chunks(self, player_X, player_Y):
+        # ACtualiza los chunks basado en la posicion del jugador
+        current_chunk = self.get_chunk_key(player_X, player_Y)
+
+        # Generar chunks adyacentes (para no ver las lineas negras)
+        for dx in [-2, -1, 0, 1, 2]:
+            for dy in [-2, -1, 0, 1, 2]:
+                chunk_x = current_chunk[0] + dx
+                chunk_y = current_chunk[1] + dy
+                self.generate_chunk(chunk_x, chunk_y)
+
+        # Eliminar chunks lejanos
+        chunks_to_remove = []
+        for chunk_key in self.active_chunks:
+            distance_X = abs(chunk_key[0] - current_chunk[0])
+            distance_Y = abs(chunk_key[1] - current_chunk[1])
+            if distance_x 2 or distance_y > 2:
+                chunks_to_remove.append(chunk_key)
+
+        for chunk_key in chunks_to_remove:
+            del self.active_chunks[chunk_key]
+
 
     def update_time(self, dt):
         self.current_time = (self.current_time + dt) % constants.DAY_LENGTH
