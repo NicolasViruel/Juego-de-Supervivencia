@@ -12,8 +12,15 @@ class Tree:
         self.image = pygame.transform.scale(self.image, (constants.TREE, constants.TREE))
         self.size = self.image.get_width()
 
-    def draw(self, screen):
-        screen.blit(self.image, (self.x, self.y))
+    def draw(self, screen, camera_x, camera_y):
+        # Calcular posicion en pantalla relativa a la camara
+        screen_x = self.x - camera_x
+        screen_y = self.y - camera_y
+
+        # Dibujar solo si esta en pantalla
+        if (screen_x + self.size >= 0 and screen_x <= constants.WIDTH and
+            screen_y + self.size >= 0 and screen_y <= constants.HEIGHT):
+            screen.blit(self.image, (screen_x, screen_y))
 
     def chop(self):
         if self.wood > 0:
@@ -33,5 +40,13 @@ class SmallStone:
         self.image = pygame.transform.scale(self.image, (constants.SMALL_STONE, constants.SMALL_STONE))
         self.size = self.image.get_width()
 
-    def draw(self, screen):
-        screen.blit(self.image, (self.x, self.y))
+    def draw(self, screen, camera_x, camera_y):
+        # Calcular posicion en pantalla relativa a la camara
+        screen_x = self.x - camera_x
+        screen_y = self.y - camera_y
+
+        # Dibujar solo si esta en pantalla
+        if (screen_x + self.size >= 0 and screen_x <= constants.WIDTH and
+            screen_y + self.size >= 0 and screen_y <= constants.HEIGHT):
+            screen.blit(self.image, (screen_x, screen_y))
+        

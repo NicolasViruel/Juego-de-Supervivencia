@@ -71,11 +71,17 @@ class Character:
         return pygame.transform.scale(image, (40, 40))
 
 
-    def draw(self, screen):
+    def draw(self, screen, camera_x, camera_y):
+
+        # Calcular posicion en pantalla relativa a la camara
+        screen_x = self.x - camera_x
+        screen_y = self.y - camera_y
+
+        
         current_frame = self.animations[self.current_state][self.animation_frame]
         if self.facing_left:
             current_frame = pygame.transform.flip(current_frame, True, False)
-        screen.blit(current_frame, (self.x, self.y))
+        screen.blit(current_frame, (screen_x, screen_y))
         self.draw_status_bars(screen)
 
     def move(self, dx, dy, world):
@@ -115,7 +121,7 @@ class Character:
 
         self.update_animation() 
         #Cuando se mueve, pierde energia
-        self.update_energy(-0.1)
+        self.update_energy(-constants.MOVEMENT_ENERGY_COST)
 
     def check_collision(self, x, y, obj):
         ratio = 0.6
@@ -203,10 +209,10 @@ class Character:
         pygame.draw.rect(screen, constants.THIRST_COLOR, (x_offset, y_offset, bar_width * (self.thirst / constants.MAX_THIRST), bar_height))
 
     def update_status(self):
-        self.update_food(-0.5)
-        self.update_thirst(-0.5)
+        self.update_food(-constants.FOOD_DECREASE_RATE)
+        self.update_thirst(-constants.THIRST_DECREASE_RATE)
 
         if self.food < constants.MAX_FOOD * 0.2 or self.thirst < constants.MAX_THIRST * 0.2:
-            self.update_energy(-0.1)
+            self.update_energy(-constants.ENERGY_DECREASE_RATE)
         else:
-            self.update_energy(0.05)
+            self.update_energy(constants.ENERGY_INCREASE_RATE)
