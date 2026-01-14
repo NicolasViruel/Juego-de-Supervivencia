@@ -20,6 +20,10 @@ def main():
 
     status_update_timer = 0
 
+    # Variables para la camara
+    camera_x = 0
+    camera_y = 0
+
 
     while True:
         dt = clock.tick(60)
@@ -49,6 +53,14 @@ def main():
         if keys[pygame.K_DOWN]:
             dy = 5
         character.move(dx, dy, world)
+
+        # La camara sigue al personaje
+        camera_x = character.x - constants.WIDTH // 2
+        camera_y = character.y - constants.HEIGHT // 2
+
+        # Actualizamos los chunks basado en la posicion del personaje
+        world.update_chunks(character.x, character.y)
+
         # Actualizar el tiempo del dia
         world.update_time(dt)
 
@@ -62,8 +74,14 @@ def main():
             pygame.quit()
             sys.exit()
 
-        world.draw(screen)
-        character.draw(screen)
+        # Limpiar pantalla
+        screen.fill((0, 0, 0))
+
+        # Dibujar el mundo con offset de camara
+
+
+        world.draw(screen, camera_x, camera_y)
+        character.draw(screen, camera_x, camera_y)
         
         if show_inventory:
             character.draw_inventory(screen)

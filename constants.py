@@ -1,4 +1,5 @@
-WIDTH, HEIGHT = 800, 600
+# WIDTH, HEIGHT = 800, 600
+WIDTH, HEIGHT = 1280, 720
 PLAYER = 60
 GRASS = 64
 TREE = 64
@@ -48,11 +49,11 @@ BAR_BACKGROUND = (100, 100, 100) # Gris oscuro
 STATUS_UPDATE_INTERVAL = 1000
 
 # Sistema de dia/noche
-DAY_LENGTH = 240000 # Duracion del dia
-DAWN_TIME = 60000 # Tiempo de amanecer
-MORNING_TIME = 80000 # Tiempo de mañana
+DAY_LENGTH = 2400000 # Duracion del dia
+DAWN_TIME = 600000 # Tiempo de amanecer
+MORNING_TIME = 800000 # Tiempo de mañana
 DUSK_TIME = 180000 # Tiempo de atardecer
-MIDNIGHT_TIME = 240000 # Tiempo de medianoche
+MIDNIGHT_TIME = 2400000 # Tiempo de medianoche
 MAX_DARKNESS = 210 # Nivel de oscuridad maximo
 
 #Para acelerar el dia sacarle un 0 al final de los tiempos
@@ -62,3 +63,9 @@ NIGHT_COLOR = (20, 20, 50) # Color azul oscuro para la noche
 DAY_COLOR = (255, 255, 255) # Color blanco para el dia
 DAWN_DUSK_COLOR = (255, 193, 137) # Color anranjado para amanecer y atardecer
 
+# Velocidades de disminuacion de estados
+FOOD_DECREASE_RATE = 0.01 # Velocidad de disminucion de la comida
+THIRST_DECREASE_RATE = 0.02 # Velocidad de disminucion del sed
+ENERGY_DECREASE_RATE = 0.005 # Velocidad de disminucion de la energia en estado critico
+ENERGY_INCREASE_RATE = 0.001 # Velocidad de aumento de la energia en estado normal
+MOVEMENT_ENERGY_COST = 0.001 # Costo de energia por movimiento
