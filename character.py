@@ -145,15 +145,13 @@ class Character:
             if self.is_near(tree):
                 if tree.chop():
                     self.inventory["wood"] += 1
-                    if tree.wood == 0:
-                        world.trees.remove(tree)
                 return
 
 
         for small_stone in world.small_stones:
             if self.is_near(small_stone):
-                self.inventory["stone"] += small_stone.stone
-                world.small_stones.remove(small_stone)
+                if small_stone.collect():
+                    self.inventory["stone"] += 1
                 return
 
     def draw_inventory(self, screen):

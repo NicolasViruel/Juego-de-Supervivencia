@@ -28,6 +28,9 @@ class Tree:
             return True
         return False
 
+    def is_depleted(self):
+        return self.wood == 0
+
 
 class SmallStone:
     def __init__(self, x, y):
@@ -50,3 +53,11 @@ class SmallStone:
             screen_y + self.size >= 0 and screen_y <= constants.HEIGHT):
             screen.blit(self.image, (screen_x, screen_y))
         
+    def collect(self):
+        if self.stone > 0:
+            self.stone -= 1
+            return True
+        return False
+
+    def is_depleted(self):
+        return self.stone <= 0
