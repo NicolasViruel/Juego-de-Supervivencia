@@ -53,6 +53,10 @@ class WorldChunk:
                 screen_y = self.y + y * constants.GRASS - camera_y
                 screen.blit(grass_image, (screen_x, screen_y))
 
+        # Remover elementos agotados
+        self.trees = [tree for tree in self.trees if not tree.is_depleted()]
+        self.small_stones = [stone for stone in self.small_stones if not stone.is_depleted()]
+        
         # Dibujar elementos solo si estan en pantalla
         for stone in self.small_stones:
             stone_screen_x = stone.x - camera_x
