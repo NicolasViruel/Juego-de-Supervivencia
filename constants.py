@@ -15,6 +15,7 @@ WALK_RIGHT = 4
 WALK_UP = 5
 FRAME_SIZE = 32
 ANIMATION_DELAY = 100
+RUNNING_ANIMATION_DELAY = 50
 
 # Velocidad del personaje
 PLAYER_SPEED = 3  # Píxeles por frame (reducido de 5)
@@ -38,11 +39,13 @@ CYAN = (0, 255, 255)
 MAX_ENERGY = 100
 MAX_FOOD = 100
 MAX_THIRST = 100
+MAX_STAMINA = 100
 
 # Colores para las barras de etado
 ENERGY_COLOR = (255, 255, 0) # Amarillo
 FOOD_COLOR = (255, 165, 0) # Naranja
 THIRST_COLOR = (0, 191, 255) # Azul
+STAMINA_COLOR = (124,252,98) # Verde
 BAR_BACKGROUND = (100, 100, 100) # Gris oscuro
 
 # Intervalo de tiempo
@@ -69,3 +72,11 @@ THIRST_DECREASE_RATE = 0.02 # Velocidad de disminucion del sed
 ENERGY_DECREASE_RATE = 0.005 # Velocidad de disminucion de la energia en estado critico
 ENERGY_INCREASE_RATE = 0.001 # Velocidad de aumento de la energia en estado normal
 MOVEMENT_ENERGY_COST = 0.001 # Costo de energia por movimiento
+
+# Nuevas constantes para correr
+WALK_SPEED = 5
+RUN_SPEED = 8
+STAMINA_DRECREASE_RATE = 0.05
+STAMINA_INCREASE_RATE = 0.02
+RUN_FOOD_DECREASE_MULTIPLIER = 2.0
+RUN_THIRST_DECREASE_MULTIPLIER = 2.0
