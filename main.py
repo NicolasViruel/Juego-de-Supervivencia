@@ -52,6 +52,9 @@ def main():
             dy = -5
         if keys[pygame.K_DOWN]:
             dy = 5
+
+        # Actualizar estado de corriendo
+        character.running = keys[pygame.K_LSHIFT] and character.stamina > 0
         character.move(dx, dy, world)
 
         # La camara sigue al personaje
