@@ -24,6 +24,7 @@ class Character:
         self.current_state = IDLE_DOWN
         self.moving = False
         self.facing_left = False
+        self.running = False
 
         # Cargar animaciones
         self.animations = self.load_animations()
@@ -38,6 +39,7 @@ class Character:
         self.energy = constants.MAX_ENERGY
         self.food = constants.MAX_FOOD
         self.thirst = constants.MAX_THIRST
+        self.stamina = constants.MAX_STAMINA
 
     def load_animations(self):
         animations = {}
@@ -60,7 +62,9 @@ class Character:
 
     def update_animation(self):
         current_time = pygame.time.get_ticks()
-        if current_time - self.animation_timer > self.animation_delay:
+        # Ajustar la velocidad de animacion segun si esta corriendo o no
+        animation_speed = RUNNING_ANIMATION_DELAY if self.running else ANIMATION_DELAY
+        if current_time - self.animation_timer > animation_speed:
             self.animation_timer = current_time
             self.animation_frame = (self.animation_frame + 1) % 6
 
@@ -88,6 +92,11 @@ class Character:
         self.moving = dx != 0 or dy != 0
 
         if self.moving:
+            # Ajustar velocidad segun si esta corriendo o caminando
+            speed_multiplier = RUN_SPEED if self.running and self.stamina > 0 else WALK_SPEED
+            dx *= speed_multiplier / WALK_SPEED
+            dy *= speed_multiplier / WALK_SPEED
+
             if dy > 0:
                 self.current_state = WALK_DOWN
                 self.facing_left = False
@@ -121,7 +130,15 @@ class Character:
 
         self.update_animation() 
         #Cuando se mueve, pierde energia
-        self.update_energy(-constants.MOVEMENT_ENERGY_COST)
+        if self.moving:
+            if self.running and self.stamina > 0:
+                self.update_stamina(-constants.STAMINA_DECREASE_RATE)
+                self.update_energy(-constants.MOVEMENT_ENERGY_COST * 2)
+            else:
+                self.update_energy(-constants.MOVEMENT_ENERGY_COST)
+        else:
+            # Recuperar stamina cuando no se mueve
+            self.update_stamina(constants.STAMINA_INCREASE_RATE)
 
     def check_collision(self, x, y, obj):
         ratio = 0.6
@@ -185,6 +202,9 @@ class Character:
     def update_thirst(self, amount):
         self.thirst = max(0, min(self.thirst + amount, constants.MAX_THIRST))
 
+    def update_stamina(self, amount):
+        self.stamina = max(0, min(self.stamina + amount, constants.MAX_STAMINA))
+
     def draw_status_bars(self, screen):
         bar_width = 200
         bar_height = 10
@@ -206,11 +226,24 @@ class Character:
         pygame.draw.rect(screen, constants.BAR_BACKGROUND, (x_offset, y_offset, bar_width, bar_height))
         pygame.draw.rect(screen, constants.THIRST_COLOR, (x_offset, y_offset, bar_width * (self.thirst / constants.MAX_THIRST), bar_height))
 
+        # Stamina bar
+        y_offset += 15
+        pygame.draw.rect(screen, constants.BAR_BACKGROUND, (x_offset, y_offset, bar_width, bar_height))
+        pygame.draw.rect(screen, constants.STAMINA_COLOR, (x_offset, y_offset, bar_width * (self.stamina / constants.MAX_STAMINA), bar_height))
+
     def update_status(self):
-        self.update_food(-constants.FOOD_DECREASE_RATE)
-        self.update_thirst(-constants.THIRST_DECREASE_RATE)
+        # Aplicar multiplicadores si esta corriendo 
+        food_rate = constants.FOOD_DECREASE_RATE * (constants.RUN_FOOD_DECREASE_MULTIPLIER if self.running else 1)
+        thirst_rate = constants.THIRST_DECREASE_RATE * (constants.RUN_THIRST_DECREASE_MULTIPLIER if self.running else 1)
+        
+        self.update_food(-food_rate)
+        self.update_thirst(-thirst_rate)
 
         if self.food < constants.MAX_FOOD * 0.2 or self.thirst < constants.MAX_THIRST * 0.2:
             self.update_energy(-constants.ENERGY_DECREASE_RATE)
         else:
             self.update_energy(constants.ENERGY_INCREASE_RATE)
+
+        # Recuperar stamina cuando no esta corriendo
+        if not self.running:
+            self.update_stamina(constants.STAMINA_INCREASE_RATE)
