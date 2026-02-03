@@ -30,3 +30,37 @@ class InventoryItem:
                 if slot and slot.name == item_name:
                     slot.quantity += quantity
                     return true
+
+            # Luego intentar apilar en el inventario principal
+            for row in range(constants.INVENTORY_ROWS):
+                for col in range(constants.INVENTORY_COLS):
+                    if self.inventory[row][col] and self.inventory[row][col].name == item_name:
+                        self.inventory[row][col].quantity += quantity
+                        return True
+
+            # Buscar un slot, vacio en el hotbar
+            for i, slot in enumerate(self.hotbar):
+                if slot is None:
+                    self.hotbar[i] = InventoryItem(item_name, self.item_images[item_name], quantity)
+                    return True
+
+            # Buscar slot vacio en el inventario principal
+            for row in range(constants.INVENTORY_ROWS):
+                for col in range(constants.INVENTORY_COLS):
+                    if self.inventory[row][col] is None:
+                        self.inventory[row][col] = InventoryItem(item_name, self.item_images[item_name], quantity)
+                        return True
+            return False
+
+        def draw(self, scree, show_inventory=False):
+            # Dibujar hotbar (siempre visible)
+            self._draw_hotbar(screen)
+
+            # Dibujar inventario principal si esta abierto
+            if show_inventory:
+                # Fondo semitransparente
+                background = pygame.Surface((constants.WIDTH, constants.HEIGHT), pygame.SRCALPHA)
+                background.fill((0, 0, 0, 128))
+                screen.blit(background, (0, 0))
+
+                self.draw_main_inventory(screen)
